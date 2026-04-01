@@ -1,0 +1,50 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Main stack for CI/CD infrastructure
+
+Resources:
+  NetworkStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: network/vpc.yaml
+      Parameters:
+        VpcCIDR: 10.0.0.0/16
+        PublicSubnetCIDR: 10.0.1.0/24
+        PrivateSubnetCIDR: 10.0.2.0/24
+
+  ComputeStack:
+    Type: AWS::CloudFormation::Stack
+    DependsOn: NetworkStack
+    Properties:
+      TemplateURL: compute/ec2.yaml
+      Parameters:
+        VPCId: !GetAtt NetworkStack.Outputs.VPCId
+        PublicSubnetId: !GetAtt NetworkStack.Outputs.PublicSubnetId
+        PrivateSubnetId: !GetAtt NetworkStack.Outputs.PrivateSubnetId
+        LoadBalancerSecurityGroupId: !GetAtt NetworkStack.Outputs.LoadBalancerSecurityGroupId
+        ApplicationSecurityGroupId: !GetAtt NetworkStack.Outputs.ApplicationSecurityGroupId
+
+  DatabaseStack:
+    Type: AWS::CloudFormation::Stack
+    DependsOn: NetworkStack
+    Properties:
+      TemplateURL: database/rds.yaml
+      Parameters:
+        VPCId: !GetAtt NetworkStack.Outputs.VPCId
+        PrivateSubnetId: !GetAtt NetworkStack.Outputs.PrivateSubnetId
+        ApplicationSecurityGroupId: !GetAtt NetworkStack.Outputs.ApplicationSecurityGroupId
+
+Outputs:
+  VPCId:
+    Value: !GetAtt NetworkStack.Outputs.VPCId
+  PublicSubnetId:
+    Value: !GetAtt NetworkStack.Outputs.PublicSubnetId
+  PrivateSubnetId:
+    Value: !GetAtt NetworkStack.Outputs.PrivateSubnetId
+  LoadBalancerSecurityGroupId:
+    Value: !GetAtt NetworkStack.Outputs.LoadBalancerSecurityGroupId
+  ApplicationSecurityGroupId:
+    Value: !GetAtt NetworkStack.Outputs.ApplicationSecurityGroupId
+  LoadBalancerDNS:
+    Value: !GetAtt ComputeStack.Outputs.LoadBalancerDNS
+  RDSEndpoint:
+    Value: !GetAtt DatabaseStack.Outputs.RDSEndpoint
