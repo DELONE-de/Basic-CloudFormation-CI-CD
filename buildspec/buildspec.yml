@@ -1,0 +1,32 @@
+version: 0.2
+
+env:
+  variables:
+    TEMPLATE_DIR: templates
+    PACKAGED_TEMPLATE: packaged-template.yaml
+
+phases:
+  install:
+    commands:
+      - chmod +x scripts/*.sh
+
+  pre_build:
+    commands:
+      - echo "Running validate..."
+      - bash scripts/validate.sh
+
+  build:
+    commands:
+      - echo "Running template packager..."
+      - bash scripts/template_packager.sh
+      - echo "Running deployer..."
+      - bash scripts/deploy.sh
+
+  post_build:
+    commands:
+      - echo "Running teardown..."
+      - bash scripts/teardown.sh
+
+artifacts:
+  files:
+    - packaged-template.yaml
