@@ -1,0 +1,54 @@
+name: Deploy CI/CD Pipeline
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'pipeline/**'
+      - '.github/workflows/**'
+  workflow_dispatch:
+
+env:
+  AWS_REGION: us-east-1
+  PIPELINE_STACK_NAME: cfn-cicd-pipeline-stack
+
+jobs:
+  deploy-pipeline:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+      
+      - name: Validate pipeline template
+        run: |
+          aws cloudformation validate-template \
+            --template-body file://pipeline/pipeline.yaml
+      
+      - name: Deploy pipeline stack
+        run: |
+          aws cloudformation deploy \
+            --template-file pipeline/pipeline.yaml \
+            --stack-name ${{ env.PIPELINE_STACK_NAME }} \
+            --parameter-overrides \
+              GitHubOwner=${{ secrets.GITHUB_OWNER }} \
+              GitHubRepo=${{ github.event.repository.name }} \
+              GitHubBranch=main \
+              GitHubOAuthToken=${{ secrets.GITHUB_TOKEN_PERSONAL }} \
+              ArtifactBucketName=${{ secrets.ARTIFACT_BUCKET_NAME }} \
+              StackName=cfn-cicd-stack \
+            --capabilities CAPABILITY_NAMED_IAM \
+            --no-fail-on-empty-changeset
+      
+      - name: Get pipeline URL
+        run: |
+          aws cloudformation describe-stacks \
+            --stack-name ${{ env.PIPELINE_STACK_NAME }} \
+            --query "Stacks[0].Outputs[?OutputKey=='PipelineUrl'].OutputValue" \
+            --output text
+
