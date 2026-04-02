@@ -127,8 +127,10 @@ Resources:
         ComputeType: BUILD_GENERAL1_SMALL
         Image: aws/codebuild/standard:7.0
         EnvironmentVariables:
-          - Name: ARTIFACT_BUCKET
+          - Name: BUCKET_NAME
             Value: !Ref ArtifactBucketName
+          - Name: S3_PREFIX
+            Value: cloudformation-templates
       Source:
         Type: CODEPIPELINE
         BuildSpec: |
@@ -142,7 +144,7 @@ Resources:
                 - bash scripts/template_packager.sh
           artifacts:
             files:
-              - packaged-template.yaml
+              - templates/main.yaml
 
   TeardownBuild:
     Type: AWS::CodeBuild::Project
@@ -240,7 +242,7 @@ Resources:
               Configuration:
                 ActionMode: CREATE_UPDATE
                 StackName: !Ref StackName
-                TemplatePath: PackageOutput::packaged-template.yaml
+                TemplatePath: PackageOutput::templates/main.yaml
                 Capabilities: CAPABILITY_NAMED_IAM,CAPABILITY_AUTO_EXPAND
                 RoleArn: !GetAtt CloudFormationDeployRole.Arn
               InputArtifacts:

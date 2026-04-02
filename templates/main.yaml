@@ -9,7 +9,9 @@ Resources:
       Parameters:
         VpcCIDR: 10.0.0.0/16
         PublicSubnetCIDR: 10.0.1.0/24
+        PublicSubnet2CIDR: 10.0.4.0/24
         PrivateSubnetCIDR: 10.0.2.0/24
+        PrivateSubnet2CIDR: 10.0.3.0/24
 
   ComputeStack:
     Type: AWS::CloudFormation::Stack
@@ -19,6 +21,7 @@ Resources:
       Parameters:
         VPCId: !GetAtt NetworkStack.Outputs.VPCId
         PublicSubnetId: !GetAtt NetworkStack.Outputs.PublicSubnetId
+        PublicSubnet2Id: !GetAtt NetworkStack.Outputs.PublicSubnet2Id
         PrivateSubnetId: !GetAtt NetworkStack.Outputs.PrivateSubnetId
         LoadBalancerSecurityGroupId: !GetAtt NetworkStack.Outputs.LoadBalancerSecurityGroupId
         ApplicationSecurityGroupId: !GetAtt NetworkStack.Outputs.ApplicationSecurityGroupId
@@ -31,6 +34,7 @@ Resources:
       Parameters:
         VPCId: !GetAtt NetworkStack.Outputs.VPCId
         PrivateSubnetId: !GetAtt NetworkStack.Outputs.PrivateSubnetId
+        PrivateSubnet2Id: !GetAtt NetworkStack.Outputs.PrivateSubnet2Id
         ApplicationSecurityGroupId: !GetAtt NetworkStack.Outputs.ApplicationSecurityGroupId
 
 Outputs:
@@ -38,8 +42,12 @@ Outputs:
     Value: !GetAtt NetworkStack.Outputs.VPCId
   PublicSubnetId:
     Value: !GetAtt NetworkStack.Outputs.PublicSubnetId
+  PublicSubnet2Id:
+    Value: !GetAtt NetworkStack.Outputs.PublicSubnet2Id
   PrivateSubnetId:
     Value: !GetAtt NetworkStack.Outputs.PrivateSubnetId
+  PrivateSubnet2Id:
+    Value: !GetAtt NetworkStack.Outputs.PrivateSubnet2Id
   LoadBalancerSecurityGroupId:
     Value: !GetAtt NetworkStack.Outputs.LoadBalancerSecurityGroupId
   ApplicationSecurityGroupId:

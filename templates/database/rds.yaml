@@ -6,6 +6,8 @@ Parameters:
     Type: String
   PrivateSubnetId:
     Type: String
+  PrivateSubnet2Id:
+    Type: String
   ApplicationSecurityGroupId:
     Type: String
   DBUsername:
@@ -35,6 +37,7 @@ Resources:
       DBSubnetGroupDescription: Subnet group for RDS
       SubnetIds:
         - !Ref PrivateSubnetId
+        - !Ref PrivateSubnet2Id
 
   RDSInstance:
     Type: AWS::RDS::DBInstance

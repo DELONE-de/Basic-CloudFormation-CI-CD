@@ -8,9 +8,15 @@ Parameters:
   PublicSubnetCIDR:
     Type: String
     Default: 10.0.1.0/24
+  PublicSubnet2CIDR:
+    Type: String
+    Default: 10.0.4.0/24
   PrivateSubnetCIDR:
     Type: String
     Default: 10.0.2.0/24
+  PrivateSubnet2CIDR:
+    Type: String
+    Default: 10.0.3.0/24
 
 Resources:
   VPC:
@@ -34,6 +40,15 @@ Resources:
     Properties:
       VpcId: !Ref VPC
       CidrBlock: !Ref PublicSubnetCIDR
+      AvailabilityZone: !Select [0, !GetAZs '']
+      MapPublicIpOnLaunch: true
+
+  PublicSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: !Ref PublicSubnet2CIDR
+      AvailabilityZone: !Select [1, !GetAZs '']
       MapPublicIpOnLaunch: true
 
   PrivateSubnet:
@@ -41,6 +56,14 @@ Resources:
     Properties:
       VpcId: !Ref VPC
       CidrBlock: !Ref PrivateSubnetCIDR
+      AvailabilityZone: !Select [0, !GetAZs '']
+
+  PrivateSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: !Ref PrivateSubnet2CIDR
+      AvailabilityZone: !Select [1, !GetAZs '']
 
   PublicRouteTable:
     Type: AWS::EC2::RouteTable
@@ -59,6 +82,12 @@ Resources:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       SubnetId: !Ref PublicSubnet
+      RouteTableId: !Ref PublicRouteTable
+
+  PublicSubnet2RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PublicSubnet2
       RouteTableId: !Ref PublicRouteTable
 
   LoadBalancerSecurityGroup:
@@ -96,10 +125,18 @@ Outputs:
     Value: !Ref PublicSubnet
     Export:
       Name: !Sub ${AWS::StackName}-PublicSubnet
+  PublicSubnet2Id:
+    Value: !Ref PublicSubnet2
+    Export:
+      Name: !Sub ${AWS::StackName}-PublicSubnet2
   PrivateSubnetId:
     Value: !Ref PrivateSubnet
     Export:
       Name: !Sub ${AWS::StackName}-PrivateSubnet
+  PrivateSubnet2Id:
+    Value: !Ref PrivateSubnet2
+    Export:
+      Name: !Sub ${AWS::StackName}-PrivateSubnet2
   LoadBalancerSecurityGroupId:
     Value: !Ref LoadBalancerSecurityGroup
     Export:

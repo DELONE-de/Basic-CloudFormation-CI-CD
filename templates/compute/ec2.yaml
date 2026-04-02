@@ -6,6 +6,8 @@ Parameters:
     Type: String
   PublicSubnetId:
     Type: String
+  PublicSubnet2Id:
+    Type: String
   PrivateSubnetId:
     Type: String
   LoadBalancerSecurityGroupId:
@@ -25,6 +27,7 @@ Resources:
     Properties:
       Subnets:
         - !Ref PublicSubnetId
+        - !Ref PublicSubnet2Id
       SecurityGroups:
         - !Ref LoadBalancerSecurityGroupId
       Scheme: internet-facing

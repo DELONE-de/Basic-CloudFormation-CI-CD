@@ -3,7 +3,6 @@ version: 0.2
 env:
   variables:
     TEMPLATE_DIR: templates
-    PACKAGED_TEMPLATE: packaged-template.yaml
 
 phases:
   install:
@@ -24,9 +23,8 @@ phases:
 
   post_build:
     commands:
-      - echo "Running teardown..."
-      - bash scripts/teardown.sh
+      - echo "Build complete"
 
 artifacts:
   files:
-    - packaged-template.yaml
+    - templates/main.yaml
